@@ -13,6 +13,7 @@ node/test/import-examples/~$*
 
 # production
 /build
+/react/build/
 
 # misc
 .DS_Store
@@ -26,6 +27,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 node_modules
+.npm-cache/
+.local-demo/
+.env
+!node/package-lock.json
+!react/package-lock.json
 
 # Volumes
 /volumes
@@ -35,3 +41,4 @@ node/saacs-service.crt
 node/saacs.key
 node/vt-cachain.pem
 VERSION
+DEMO-DEPLOY.md

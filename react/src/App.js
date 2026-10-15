@@ -68,6 +68,12 @@ export default function App() {
     return (
       <Router>
         <Navbar user={user} />
+        {user?.demo && (
+          <aside style={{ background: '#fff3cd', color: '#493a0a', padding: '12px 20px', textAlign: 'center' }}>
+            Portfolio demo · You are trying the advisor workflow. Use fictional test data only.
+            {' '}Audit results belong to this browser session. <a href="/audits">Start an audit</a>
+          </aside>
+        )}
         <div className="page-contents">
           <Routes>
             <Route path="/" element={<Home user={user} />} />

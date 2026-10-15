@@ -13,6 +13,35 @@ const fileTypes = ["XLSX"];
 
 export default function Audits({ user }) {
   const [refetchTrigger, setRefetchTrigger] = useState(false);
+  const [job, setJob] = useState(null);
+  const [sampleBusy, setSampleBusy] = useState(false);
+  const [sampleError, setSampleError] = useState('');
+  async function runSample() {
+    setSampleBusy(true);
+    setSampleError('');
+    try {
+      const form = new FormData();
+      for (const kind of ['progress', 'warehouse']) {
+        const { data } = await axios.get(`/api/demo/sample/${kind}`, { responseType: 'blob' });
+        form.append('files', data, `demo-${kind}.xlsx`);
+      }
+      await axios.post('/api/audit', form);
+      triggerRefetch();
+    } catch (error) {
+      setSampleError(error.response?.data?.message || 'Unable to start the sample audit. Please try again.');
+    } finally {
+      setSampleBusy(false);
+    }
+  }
+  useEffect(() => {
+    let active = true;
+    const refresh = () => axios.get('/api/audit/status')
+      .then(({ data }) => { if (active) setJob(data); })
+      .catch(() => {});
+    refresh();
+    const timer = setInterval(refresh, 3000);
+    return () => { active = false; clearInterval(timer); };
+  }, [refetchTrigger]);
 
   function triggerRefetch() {
     setRefetchTrigger(!refetchTrigger);
@@ -22,6 +51,16 @@ export default function Audits({ user }) {
     <div className="audits-container">
       <div className="page-body">
         <h1>Audits</h1>
+        {user?.demo && <div style={{ marginBottom: 20 }}>
+          <p>Explore graduation checks with three fictional students, or upload your own test files below (up to 20 MB each).</p>
+          <button className="btn btn-primary" disabled={sampleBusy || ['queued', 'processing'].includes(job?.status)} onClick={runSample}>
+            {sampleBusy ? 'Starting sample…' : 'Run sample audit'}
+          </button>
+          <p style={{ marginTop: 10 }}>Sample files: <a href="/api/demo/sample/progress">Progress Towards Degree</a> · <a href="/api/demo/sample/warehouse">Data Warehouse</a></p>
+        </div>}
+        {sampleError && <Alert severity="error">{sampleError}</Alert>}
+        {job?.status === 'failed' && <Alert severity="error">{job.message}</Alert>}
+        {['queued', 'processing'].includes(job?.status) && <Alert severity="info">Your audit is {job.status}. Results will refresh automatically.</Alert>}
         <div className="audits-split">
           <AuditImport trigger={triggerRefetch} />
           <AuditExport refetchTrigger={refetchTrigger} user={user} />
@@ -145,14 +184,12 @@ function AuditImport({ trigger }) {
         setFullDataFile(null);
       })
       .catch((error) => {
-        alert("An error occured! Please contact bbradner@vt.edu if this error persists.");
-
         setOpen(true);
         setLoading(false);
         setFile(null);
         setFullDataFile(null);
 
-        const errorMessage = error.response?.data?.message;
+        const errorMessage = error.response?.data?.message || "The upload could not be completed. Please try again.";
 
         console.log(errorMessage);
 
@@ -163,7 +200,7 @@ function AuditImport({ trigger }) {
         ) {
           displayMessage(`Incomplete Checksheet`, "error");
         } else {
-          displayMessage(`Error while processing the file`, "error");
+          displayMessage(errorMessage, "error");
         }
       });
   }
@@ -523,7 +560,8 @@ function AuditExport({ refetchTrigger, importInfo, user }) {
 
   useEffect(() => {
     getAuditHistory(user.pid);
-    displayMessage("New Audit History Loaded!", "success");
+    const timer = setInterval(() => getAuditHistory(user.pid), 5000);
+    return () => clearInterval(timer);
   }, [refetchTrigger, user.pid]);
 
   // Apply filters

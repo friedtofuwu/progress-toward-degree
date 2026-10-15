@@ -10,6 +10,7 @@ class AuditQueue {
         this.queue = [];
         this.isProcessing = false;
         this.currentJob = null;
+        this.latestByUser = new Map();
     }
 
     /**
@@ -25,6 +26,9 @@ class AuditQueue {
         job.position = queuePosition;
         
         this.queue.push(job);
+        this.latestByUser.delete(job.details.initiatingUser);
+        this.latestByUser.set(job.details.initiatingUser, job);
+        if (this.latestByUser.size > 100) this.latestByUser.delete(this.latestByUser.keys().next().value);
         
         Log.info(`Audit queued: ${job.id}, position: ${queuePosition}`, job.details.initiatingUser);
         

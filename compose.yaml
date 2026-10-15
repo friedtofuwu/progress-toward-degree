@@ -1,0 +1,33 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8080:5000"
+    environment:
+      DEMO_MODE: "true"
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      MYSQL_HOST: db
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      INIT_ADMIN: "0"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+    volumes:
+      - demo-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+volumes:
+  demo-data:

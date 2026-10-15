@@ -93,8 +93,8 @@ module.exports.worker = async (auditInfo) => {
     const numStudents = Array.isArray(result?.students) ? result.students.length : 0;
 
     // PTD has no violations now; guard for undefined
-    const numFlaggedStudents = Array.isArray(result?.flags)
-      ? _.uniqBy(result.flags, 'student_id').length
+    const numFlaggedStudents = Array.isArray(result?.additional)
+      ? result.additional.filter(student => !student.graduation_ready).length
       : 0;
 
     // Update the audit record with final stats

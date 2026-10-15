@@ -3,23 +3,31 @@ const { DB, tableNames } = require("./database/handler.js")
 const { getUserByPID, addUser } = require('./database/utils/User.js');
 const Log = require('./database/utils/Log.js');
 const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const demoMode = process.env.DEMO_MODE === 'true';
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    throw new Error('Set SESSION_SECRET before starting in production.');
+}
 
 var app = require("express")();
 const session = require("express-session");
+if (process.env.TRUST_PROXY === 'true') app.set('trust proxy', 1);
 app.use(
     session({
-        secret: "this is totally secret",
+        secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
         resave: false,
         saveUninitialized: false,
+        cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.COOKIE_SECURE === 'true', maxAge: 86400000 },
     })
 );
 
 // CAS
 const passport = require("passport");
-const casStrategy = require("./api/auth/auth.cas.js");
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(casStrategy);
+if (!demoMode) passport.use(require("./api/auth/auth.cas.js"));
+if (demoMode) app.use(require('./demo'));
 passport.serializeUser((user, done) => {
     if (user !== null)
         done(null, user.pid);
@@ -47,6 +55,8 @@ app.use((req, res, next) => {
 });
 
 // Import Routes
+app.get('/api/health', (req, res) => res.json({ status: 'ok', demo: demoMode }));
+if (!demoMode) {
 require("./api/auth/auth.routes.js")(app);
 require("./api/user/user.routes.js")(app);
 require("./api/logs/logs.routes.js")(app);
@@ -63,7 +73,24 @@ require("./api/ug_forceadd/ug_forceadd.routes.js")(app);
 require("./api/grad_term/grad_term.routes.js")(app);
 require("./api/grad_timetable/grad_timetable.routes.js")(app);
 require("./api/grad_forceadd/grad_forceadd.routes.js")(app);
+} else {
+    app.get('/api/demo/sample/:kind(progress|warehouse)', require('./demo.samples'));
+    require("./api/user/user.routes.js")(app);
+    require("./api/checksheet/checksheet.routes.js")(app);
+}
 require("./api/audit/audit.routes.js")(app);
+
+app.use('/api', (req, res) => res.status(404).json({ message: 'API route not found' }));
+const frontendPath = path.resolve(process.env.FRONTEND_BUILD_PATH || path.join(__dirname, '../react/build'));
+if (fs.existsSync(path.join(frontendPath, 'index.html'))) {
+    app.use(require('express').static(frontendPath));
+    app.get('*', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
+}
+app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+    res.status(err instanceof require('multer').MulterError ? 400 : 500)
+        .json({ message: err instanceof require('multer').MulterError ? 'Upload two XLSX files, each no larger than 20 MB.' : 'The request could not be completed.' });
+});
 
 const PORT = +process.env.PORT || 5000;
 
@@ -132,7 +159,7 @@ DB.init(20).then(async (couldConnect) => {
         console.log('[INFO] Loaded key.')
 
         // Start server
-        server = app.listen(PORT, () => {
+        server = app.listen(PORT, process.env.HOST || '0.0.0.0', () => {
             const host = server.address().address
             console.log("Node backend listening at http://%s:%s", host, PORT);
         });

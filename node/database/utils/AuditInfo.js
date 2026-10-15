@@ -10,10 +10,11 @@ module.exports.getAuditHistoryByUser = (pid) => {
   const sql = `
     SELECT *
     FROM Audit_Info
+    ${process.env.DEMO_MODE === 'true' ? 'WHERE initiating_user_pid = ?' : ''}
     ORDER BY timestamp DESC
   `;
   // Execute the query with the PID bound as a parameter; unwrap and return rows
-  return DB.query(sql, []).then(({ result }) => result);
+  return DB.query(sql, process.env.DEMO_MODE === 'true' ? [pid] : []).then(({ result }) => result);
 };
 // FORMER GETAUDITHISTORYBYUSER CODE
 // module.exports.getAuditHistoryByUser = (pid) => {

@@ -10,10 +10,15 @@ module.exports = (app) => {
             cb(null, file.fieldname + '-' + uniqueSuffix());
         }
     });
-    const upload = multer({ storage: storage, preservePath: true });
+    const upload = multer({
+        storage,
+        limits: { files: 2, fileSize: 20 * 1024 * 1024, fields: 10 },
+        fileFilter: (req, file, cb) => cb(null, /\.xlsx$/i.test(file.originalname)),
+    });
 
     // Submit a new audit
-    app.post("/api/audit", isAuthenticated, isAdvisor, upload.array("files"), auditController.import);
+    app.get('/api/audit/status', isAuthenticated, isAdvisor, auditController.getAuditStatus);
+    app.post("/api/audit", isAuthenticated, isAdvisor, upload.array("files", 2), auditController.import);
 
     // Get students associated with the audit
     app.get("/api/audit/:audit_id", isAuthenticated, isAdvisor, auditController.getAuditResults);

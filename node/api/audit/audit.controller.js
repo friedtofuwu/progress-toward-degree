@@ -20,19 +20,18 @@ const {
 } = require("../../database/utils/AuditInfo");
 
 const fileTypes = ["XLSX"];
-module.exports.uploadPath = "/tmp/p91-tool/audits";
+module.exports.uploadPath = require('path').join(require('os').tmpdir(), 'p91-tool', 'audits');
+fs.mkdirSync(module.exports.uploadPath, { recursive: true });
 
 let auditImportInfo = null;
 
 module.exports.getAuditStatus = (req, res) => {
-  const queueStatus = auditQueue.getStatus();
-
-  res.status(200).send({
-    isProcessing: queueStatus.isProcessing,
-    currentJob: queueStatus.currentJob,
-    queueLength: queueStatus.queueLength,
-    queuedJobs: queueStatus.queuedJobs,
-    info: auditImportInfo?.details || null,
+  const job = auditQueue.latestByUser.get(getCurrentUser(res)?.pid);
+  res.json({
+    status: job?.status || 'idle',
+    message: job?.status === 'failed'
+      ? 'The audit could not be processed. Check both spreadsheet formats and the checksheet year, then try again.'
+      : null,
   });
 };
 
@@ -44,6 +43,7 @@ module.exports.import = async (req, res) => {
   const fullDataFile = req.files[1];
 
   if (!file || !fullDataFile) {
+    for (const uploaded of req.files || []) fs.unlink(uploaded.path, () => {});
     return res.status(400).send({ message: "Must supply two Excel files" });
   }
 
@@ -197,7 +197,7 @@ module.exports.exportAuditFile = async (req, res) => {
  */
 module.exports.getAuditHistory = async (req, res) => {
     // Read the PID out of the route parameter
-    const pid = req.params.pid;
+    const pid = process.env.DEMO_MODE === 'true' ? getCurrentUser(res)?.pid : req.params.pid;
     try {
         // Ask the DB util for this user's audit history
         const history = await getAuditHistoryByUser(pid);
@@ -273,7 +273,7 @@ module.exports.getAuditRunInfo = async (req, res) => {
 
     const processed = await countProcessedStudents(auditId);    // DISTINCT students written so far
     const total = info?.num_students || null;                   // may be null/0 until set
-    const completed = info?.processing_time_ms != null;
+    const completed = info?.processing_time_ms != null && info.processing_time_ms >= 0;
 
     // Minimal state machine
     const status =

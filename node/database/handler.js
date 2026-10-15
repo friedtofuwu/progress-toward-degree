@@ -49,6 +49,7 @@ class DB {
                 const user = process.env.MYSQL_USER || 'db-user'
                 this.#pool = mysql.createPool({
                     host: host,
+                    port: Number(process.env.MYSQL_PORT || 3306),
                     user: user,
                     password: process.env.MYSQL_PASSWORD,
                     database: process.env.MYSQL_DATABASE || 'progress-db',
