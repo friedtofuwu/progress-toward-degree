@@ -1,0 +1,14 @@
+// Undergraduate
+1   "Major/minor restriction error: You are a current CS/DCC/SC major or CS/HCI minor, AND your major/minor is included in the restrictions for the specific CRN on the timetable, but you cannot register."
+2   "Level restriction error: Graduate student attempting to add an undergraduate course. You have received direction from the CS Department to submit this request. Please include more information in the comment box which will be verified during review of request."
+3   "Course Repeat Error: You did not earn a C or better in a CS course in the prior semester and need to repeat the course."
+4   "Prerequisite Override Error: You took STAT 4706 instead of STAT 4705 OR an approved alternate course sequence substitution for CMDA 2006) and are approved to enroll in CS 4824 or CS 3654 (These are the ONLY approved overrides.)"
+5   "Special Topics/Studies Class Error: You want to enroll in CS 3984, 3894, 4894 or 4984, and cannot as these courses require force/adding to enroll."
+6   "Instructed to submit request: Only select this option if you were instructed by your CS major or minor advisor to submit this request. Please include more information in the comment box below which will be verified during review of request."
+// Graduate
+7   "Prerequisites were completed outside of VT and your student record hasn't been updated."
+8   "The course is restricted by major, but the course is required for your major, minor, degree, or graduate certificate."
+9   "The course is restricted by major, but you are a prospective student or Commonwealth Campus student."
+10  "The course requires department or faculty approval."
+11  "Currently retaking a prerequisite."
+12  "I am an Accelerated MS/MEng 4+1 student."

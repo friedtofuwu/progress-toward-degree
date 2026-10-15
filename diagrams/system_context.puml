@@ -1,0 +1,17 @@
+@startuml System_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title System Context Diagram
+
+LAYOUT_WITH_LEGEND()
+
+Person(advisor, "CS Advisors")
+Container(saacs, "CS-SAACS Application", "Software System", "Allows advisors to upload student information and view Policy91 Violations and Graduation Requirements")
+
+System_Ext(cas, "VT CAS", "Virginia Tech validation system")
+
+Rel_D(advisor, saacs, "Upload student information and view Policy91 and Graduation Requirements via", "")
+
+BiRel_R(saacs, cas, "Validates User with", "")
+
+@enduml

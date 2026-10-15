@@ -1,0 +1,26 @@
+@startuml Container_Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram
+
+LAYOUT_WITH_LEGEND()
+
+Person(advisor, "CS Advisors")
+System_Boundary(saacs, "CS-SAACS Application") {
+    Container(spa, "Single-Page Application", "Container: Javascript", "Provides all Policy91 and Graduation checking functionality in a React App")
+    Container(api, "API Application", "Container: Javascript", "Provides all Policy91 and Graduation checking functionality via Express API")
+    ContainerDb(db, "Database", "Container: MariaDb", "Stores student information, class information, and violations")
+}
+System_Ext(cas, "VT CAS", "Virginia Tech validation system")
+
+Rel_D(advisor, spa, "Visit checkers.discovery.cs.vt.edu", "HTTPS")
+
+Rel_R(api, cas, "Validates User via", "")
+
+Rel(cas, spa, "Append valid session cookie to", "")
+
+Rel(spa, api, "Makes API calls to", "")
+
+Rel_L(api, db, "Reads from and Writes to", "SQL/TCP")
+
+@enduml

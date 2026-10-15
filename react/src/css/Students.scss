@@ -1,0 +1,677 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 3em;
+}
+
+.search-bar {
+    display: flex;
+    gap: 0.5em;
+
+    input,
+    button {
+        height: 35px;
+        padding: 0 10px;
+        border: none;
+        border-radius: 0.25em;
+    }
+
+    input {
+        outline: rgba(0, 0, 0, 0.2) solid 0.1em;
+    }
+
+    button {
+        background-color: #007BFF;
+        color: white;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+}
+
+.table {
+    --border-radius: 0.5em;
+    --header-color: #0056b3;
+    --border-style: var(--header-color) solid 0.2em;
+
+    cursor: default;
+    border-spacing: 0;
+    display: table;
+    padding: 1em;
+    width: 100%;
+
+    thead {
+        background-color: var(--header-color);
+
+        tr>th:first-child {
+            border-top-left-radius: var(--border-radius);
+            border-top: var(--border-style);
+            border-left: var(--border-style);
+        }
+
+        tr>th:last-child {
+            border-top-right-radius: var(--border-radius);
+            border-top: var(--border-style);
+            border-right: var(--border-style);
+        }
+    }
+
+    tbody>tr {
+        &:nth-child(2n + 1) {
+            background-color: #f5faff;
+        }
+
+        &:nth-child(2n) {
+            background-color: #86b7fe;
+        }
+
+        &:last-child>td {
+            border-bottom: var(--border-style);
+
+            &:first-child {
+                border-bottom-left-radius: var(--border-radius);
+                border-left: var(--border-style);
+            }
+
+            &:last-child {
+                border-bottom-right-radius: var(--border-radius);
+                border-right: var(--border-style);
+            }
+        }
+
+        >td {
+            &:first-child {
+                border-left: var(--border-style);
+            }
+
+            &:last-child {
+                border-right: var(--border-style);
+            }
+        }
+    }
+
+    th,
+    td {
+        padding: 0.5em 0.75em;
+        text-align: center;
+    }
+
+    td {
+        >a {
+            svg {
+                min-height: 1.5rem;
+                min-width: 1.5rem;
+            }
+        }
+    }
+}
+
+.no-students-message {
+    display: block;
+    margin: 2em;
+    text-align: center;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.class-list {
+    max-height: 4em;  /* Adjust the height as needed */
+    overflow-y: scroll;
+    scrollbar-width: thin;  /* "auto" can also be used here, but may not work on all browsers */
+    scrollbar-color: darkgray lightgray;  /* Adjust the colors as needed */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    position: absolute;
+    background-color: #fefefe;
+    box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.2);
+    outline: #c7c7c7 0.1em solid;
+    border-radius: 0.25em;
+
+    div {
+        color: black;
+        padding: 0.75em 1em;
+        text-decoration: none;
+        display: block;
+    }
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+    align-self: flex-start;
+}
+
+.filter-icon {
+    min-width: 1.5em;
+    min-height: 1.5em;
+    cursor: pointer;
+}
+
+.flagged-only-checkbox {
+    cursor: pointer;
+}
+
+.student-id-link {
+    color: blue;
+    cursor: pointer;
+}
+
+.student-id-link:hover {
+    color: rgb(0, 0, 136);
+    text-decoration: underline;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+
+    .page-item {
+        margin: 0 5px;
+    }
+
+    .page-link {
+        color: #007BFF;
+        cursor: pointer;
+    }
+
+    .active .page-link {
+        color: #ffffff;
+        font-weight: bold;
+    }
+}
+
+.tagged-row {
+    color: red
+}
+
+.status-ready {
+    color: green;
+    font-weight: 600;
+}
+
+.status-incomplete {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.student-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.5em 0;
+    gap: 1em;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    label {
+        cursor: pointer;
+        margin: 0;
+    }
+}
+
+.dropdown-wrapper {
+    position: relative;
+
+    .filter-button {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 0.5em 1em;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 0.25em;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+
+        svg {
+            font-size: 1.2em;
+        }
+    }
+
+    .dropdown-content {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 0.5em;
+        background-color: white;
+        box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.2);
+        border-radius: 0.25em;
+        padding: 0.5em;
+        min-width: 200px;
+        z-index: 1000;
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            padding: 0.5em;
+
+            input[type="checkbox"] {
+                cursor: pointer;
+            }
+
+            label {
+                cursor: pointer;
+                margin: 0;
+            }
+
+            &:hover {
+                background-color: #f5f5f5;
+            }
+        }
+    }
+}
+
+.students-table-container {
+    overflow-x: auto;
+    margin: 1.5em 0;
+    min-height: 700px;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    thead {
+        background-color: #0056b3;
+        color: white;
+
+        th {
+            padding: 1em;
+            text-align: left;
+            font-weight: 600;
+        }
+    }
+
+    tbody {
+        min-height: 600px;
+        
+        tr {
+            &:nth-child(odd) {
+                background-color: #f5faff;
+            }
+
+            &:nth-child(even) {
+                background-color: #e3f2fd;
+            }
+
+            &:hover {
+                background-color: #bbdefb;
+            }
+
+            td {
+                padding: 0.75em 1em;
+                text-align: left;
+
+                a {
+                    color: #007BFF;
+                    text-decoration: none;
+
+                    svg {
+                        font-size: 1.5em;
+                        vertical-align: middle;
+                    }
+
+                    &:hover {
+                        color: #0056b3;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.summary-info {
+    text-align: center;
+    margin: 1em 0;
+    color: #666;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1em;
+
+    svg {
+        font-size: 1.2em;
+    }
+
+    &:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+}
+
+// Column filter styles
+.filter-row {
+    background-color: white;
+    
+    th {
+        padding: 0.5em;
+        background-color: white;
+    }
+}
+
+// Sortable column headers
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
+
+    .th-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5em;
+    }
+
+    .sort-icon {
+        font-size: 0.9em;
+        color: #ccc;
+        flex-shrink: 0;
+
+        &.active {
+            color: #007BFF;
+        }
+    }
+}
+
+.column-filter-input,
+.column-filter-select {
+    width: 100%;
+    padding: 0.4em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+
+    &:focus {
+        outline: none;
+        border-color: #007BFF;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+}
+
+.clear-column-filters-btn {
+    padding: 0.4em 0.8em;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: #5a6268;
+    }
+
+    &:active {
+        background-color: #545b62;
+    }
+}
+
+// Missing classes filter dropdown styling
+.missing-classes-filter-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.missing-classes-filter-btn {
+    width: 100%;
+    padding: 0.4em 0.8em;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+
+    &:active {
+        background-color: #004085;
+    }
+}
+
+.missing-classes-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 0.5em;
+    margin-top: 0.25em;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        cursor: pointer;
+        white-space: nowrap;
+        padding: 0.2em 0.3em;
+        border-radius: 3px;
+        color: black;
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            background-color: #f0f0f0;
+        }
+    }
+
+    .dropdown-category-header {
+        font-weight: 600;
+        font-size: 0.85em;
+        color: #333;
+        margin-top: 0.5em;
+        margin-bottom: 0.2em;
+        padding-bottom: 0.2em;
+        border-bottom: 1px solid #ddd;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+}
+
+// Pagination styles
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5em;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    label {
+        font-size: 0.95em;
+        color: #333;
+    }
+}
+
+.students-per-page-select {
+    padding: 0.4em 0.6em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95em;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #007BFF;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+}
+
+// Header with controls
+.header-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5em;
+    flex-wrap: wrap;
+    gap: 1em;
+
+    h1 {
+        margin: 0;
+    }
+}
+
+// Column selector
+.column-selector-wrapper {
+    position: relative;
+}
+
+.column-selector-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.6em 1.2em;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+
+    svg {
+        font-size: 1.1em;
+    }
+
+    &:hover {
+        background-color: #0056b3;
+    }
+
+    &:active {
+        background-color: #004494;
+    }
+}
+
+.column-selector-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5em);
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.column-selector-header {
+    padding: 0.8em 1em;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.column-checkbox-list {
+    padding: 0.5em;
+    max-height: 400px;
+    overflow-y: auto;
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 0.6em;
+        padding: 0.6em 0.8em;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f8f9fa;
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+// Highlighted missing course text (yellow background)
+.highlighted-missing-course {
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+// General categories (Missing Classes) - Yellow
+.highlighted-general {
+    background-color: #ffff00; // Bright yellow
+}
+
+// Concentration categories - Lime Green
+.highlighted-concentration {
+    background-color: #32cd32; // Lime green
+}
+
+// Pathways categories - Orange
+.highlighted-pathways {
+    background-color: #ffa500; // Orange
+}

@@ -1,0 +1,142 @@
+.admin-page {
+    font-family: Arial, sans-serif;
+    color: #333;
+    padding: 1em;
+    margin: 0 70px;
+}
+
+.user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F1F1F1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    min-width: 150px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-header .buttons {
+    display: flex;
+    gap: 10px; /* Adjust this value as needed */
+}
+
+.admin-header button {
+    margin: 10px 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+.admin-page h1 {
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.admin-page button {
+    margin: 10px 0;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+.user button {
+    margin: 10px 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+.user button:hover {
+    background-color: #0056b3;
+    border-radius: 4px;
+    transition: all 0.2s ease-out;
+}
+
+
+.confirm-button-container {
+    text-align: right;
+}
+
+.confirm-button-container button{
+    margin: 10px 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+.confirm-button-container .confirm-button {
+    background-color: red;
+    color: white; /* Make the text color white so it's readable on the red background */
+}
+
+.radio-container-horizontal {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.radio-option-horizontal {
+    display: block;
+    padding: 10px 20px;
+}
+
+.radio-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.radio-option {
+    display: block;
+    padding: 10px 0;
+}
+
+.radio-option input {
+    margin-right: 10px;
+    
+}
+
+.add-user-permissions-container {
+    width: 80%;
+    margin: 20px auto;
+}
+
+/* For Add user input box */
+.input-container {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    margin: 20px auto;
+}
+
+.input-container input {
+    width: 100%;
+    font-size: 36px;
+    border: none;   
+}

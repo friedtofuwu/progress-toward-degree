@@ -1,0 +1,55 @@
+.file-input {
+    --outline-color: #007bff;
+    width: fit-content;
+    border-radius: 0.5em;
+    outline: var(--outline-color) dashed 0.2em;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    cursor: pointer;
+
+    &.dragging {
+        background-color: #ecf5ff;
+    }
+
+    &.has-file:not(.dragging) {
+        outline-style: solid;
+    }
+
+    &:hover:not(.file-clear-bttn:hover) {
+        background-color: #ecf5ff;
+    }
+
+    label {
+        cursor: pointer;
+        margin: 0.5em 1em;
+        text-wrap: nowrap;
+    }
+
+    .upload-icon {
+        min-width: 2em;
+        min-height: 2em;
+        stroke: var(--outline-color);
+        margin: 0.3em 0 0.3em 1em;
+
+        &.file {
+            stroke: #008000;
+        }
+    }
+
+    .file-clear-bttn {
+        min-width: 1.25em;
+        min-height: 1.25em;
+        opacity: 0.3;
+        margin: 0.3em 1em 0.3em 0;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+input[type="file"] {
+    width: 0;
+}

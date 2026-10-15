@@ -1,0 +1,81 @@
+.update-btn {
+    background-color: #ffc107;
+    color: black;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
+}
+.drop-btn {
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
+}
+
+.term-header {
+    border: #00000069 1px solid;
+    border-collapse: collapse;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    background: #0056b3;
+    color: #FFFFFFFF;
+}
+.term-header-closed {
+    border-radius: 0.5em;
+}
+.term-header-open {
+    border-radius: 0.5em 0.5em 0 0;
+}
+
+.term-wrapper {
+    border: #00000069 1px solid;
+    border-radius: 0 0 0.5em 0.5em;
+    overflow: auto;
+    scrollbar-width: none;
+}
+.term-title {
+    margin: 8px;
+}
+.term-options {
+    margin-top: 2px;
+    display: ruby;
+}
+.term-option {
+    margin: 0 .4em;
+    display: inline;
+}
+
+th {
+    color: white;
+}
+td {
+    white-space: nowrap;
+}
+table {
+    padding: 0.4em;
+}
+
+.filter-column {
+    padding: 0 1em;
+    width: 6em;
+    display: inline-block;
+}
+
+.filter-title {
+    display: inline-block;
+    padding: 0.5em 1em;
+}
+
+.vl {
+    float: left;
+    border: 0.2px solid gray;
+    height: 3.6em;
+    margin: 0.5em 1em;
+    margin-right: 0;
+}
+
+.hidden {
+    display: none;
+}

@@ -1,0 +1,30 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .pagination a {
+    width: 30px;  
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;  
+    text-decoration: none;
+    color: #333;
+    margin: 0 5px;
+  }
+  
+  .pagination .active a {
+    background-color: #007bff;
+    text-emphasis-color: #fff;
+    color: #fff;
+  }
+  
+  .pagination a:hover {
+    background-color: #ddd;
+    cursor: pointer;
+  }

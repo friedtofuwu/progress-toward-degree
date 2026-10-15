@@ -1,0 +1,26 @@
+.center-wrapper {
+    text-align: center;
+}
+
+h1,
+h2,
+h3,
+p {
+    cursor: default;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+}
+
+.page-contents {
+    position: relative;
+    height: calc(100vh - 4rem);
+    overflow: auto;
+}
+
+.page-body {
+    padding: 1.5em 3em 10.5em 3em;
+}
