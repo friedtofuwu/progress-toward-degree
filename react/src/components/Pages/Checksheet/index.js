@@ -130,6 +130,24 @@ function Checksheet() {
 
     const handleSubmit = async (values) => {
         const { yearInput, selectedDialogYear } = values;
+        if (staticDemo) {
+            try {
+                if (selectedDialogYear === 'None') await axios.post('/api/checksheet/year', {year: yearInput});
+                else await axios.post(`/api/checksheet/copy/${selectedDialogYear}/to/${yearInput}`);
+                setSelectedYear(String(yearInput));
+                setSnackMessage('Checksheet year saved in this browser.');
+                setSnackSeverity('success');
+                setOpenSnack(true);
+                setYearInput('');
+                setSelectedDialogYear('None');
+                handleClose();
+            } catch (error) {
+                setSnackMessage(error.response?.data?.message || 'Unable to add checksheet year.');
+                setSnackSeverity('error');
+                setOpenSnack(true);
+            }
+            return;
+        }
 
         const exists = years.find(year => year === yearInput);
 
@@ -232,8 +250,8 @@ function Checksheet() {
                     {snackMessage}
                 </Alert>
             </Snackbar>
-            <h1>{staticDemo ? 'Course Requirements' : 'Checksheet Manager'}</h1>
-            {staticDemo && <p>Read-only course rules used by the graduation audit.</p>}
+            <h1>Checksheet Manager</h1>
+            {staticDemo && <p>Add years and edit course requirements. Changes are saved in this browser and used for new audits.</p>}
             {loading ? (
                             <div>Loading Checksheet...</div>
                         ) : (
@@ -253,9 +271,9 @@ function Checksheet() {
                         </h2>
                     </div>
 
-                    {!staticDemo && <button onClick={handleClickOpen} className="new-list-button">
+                    <button onClick={handleClickOpen} className="new-list-button">
                         <div>Add New Year</div>
-                        <div><AddIcon/></div></button>}
+                        <div><AddIcon/></div></button>
 
                 </div>
                 <h2 className="group-header">General Requirements of all Majors</h2>

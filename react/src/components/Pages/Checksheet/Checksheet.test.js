@@ -2,6 +2,10 @@ import { render, screen, fireEvent, within, waitFor } from '@testing-library/rea
 import Checksheet from './index';
 import { installStaticDemo } from '../../../staticDemo/client';
 import { availableYears, selectAvailableYear } from './availableYears';
+import { indexedDB } from 'fake-indexeddb';
+const v8 = require('node:v8');
+global.indexedDB = indexedDB;
+global.structuredClone = value => v8.deserialize(v8.serialize(value));
 jest.mock('../../../staticDemo/workerClient', () => ({ runWorker: jest.fn() }));
 const courseRules = require('../../../../public/data/checksheets.json');
 
@@ -21,7 +25,9 @@ test('defaults to the latest real checksheet and shows its courses when the cale
         await waitFor(() => expect(table.textContent).toContain(`Credits: ${expectedCredits}`));
         fireEvent.click(heading);
         expect(within(table).getAllByText(new RegExp(`${core[0][1]}${core[0][3]}`)).length).toBeGreaterThan(0);
-        expect(screen.queryByText('Add New Year')).toBeNull();
+        expect(screen.getByRole('button', {name: /Add New Year/})).toBeTruthy();
+        expect(within(table).getByRole('button', {name: 'add'})).toBeTruthy();
+        expect(within(table).getByRole('button', {name: 'delete'})).toBeTruthy();
     } finally {
         view.unmount();
         global.fetch = previousFetch;

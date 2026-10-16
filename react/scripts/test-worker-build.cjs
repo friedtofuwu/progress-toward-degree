@@ -15,7 +15,8 @@ async function execute(data) {
     const context = vm.createContext({
         console, URL, ArrayBuffer, Uint8Array, Uint16Array, Uint32Array, Int32Array, Float64Array, TextDecoder, TextEncoder, setTimeout, clearTimeout,
         location: `https://example.invalid/static/js/${worker}`,
-        fetch: async () => ({ ok: true, json: async () => rules }),
+        fetch: async url => ({ ok: true, json: async () => String(url).includes('/demo-students/')
+            ? JSON.parse(fs.readFileSync(path.resolve(__dirname, '../public/data/demo-students', path.basename(new URL(url).pathname)), 'utf8')) : rules }),
         postMessage: value => value.error ? reject(new Error(value.error)) : resolve(value),
     });
     context.self = context;
@@ -26,14 +27,18 @@ async function execute(data) {
     return result;
 }
 (async () => {
-    const progress = (await execute({ operation: 'sample', kind: 'progress' })).buffer;
-    const warehouse = (await execute({ operation: 'sample', kind: 'warehouse' })).buffer;
+    const {progress, warehouse, ids} = await execute({ operation: 'sample', sampleURL: 'https://example.invalid/data/demo-students/index.json' });
     const { rows } = await execute({ operation: 'analyze', progress, warehouse, rulesURL: 'https://example.invalid/data/checksheets.json' });
-    assert.equal(rows.length, 3);
-    assert.equal(rows[0].id, 900000001);
-    assert.equal(rows[0].email, 'student900000001@example.invalid');
-    assert.equal(rows[0].graduation_ready, false);
-    assert.ok(rows.every(row => row.missing_courses.length > 0));
+    assert.equal(rows.length, 10);
+    assert.equal(new Set(ids).size, 10);
+    assert.ok(rows.every(row => ids.includes(row.id) && typeof row.graduation_ready === 'boolean' && Array.isArray(row.missing_courses)));
+    const index = require('../public/data/demo-students/index.json');
+    for (const student of rows) {
+        const [, chunk] = index.students.find(([id]) => id === student.id);
+        const source = require(path.resolve(__dirname, '../public/data/demo-students', index.chunks[chunk])).find(row => row.id === student.id);
+        assert.equal(student.name, source.progress[0][index.headers.progress.indexOf('name')]);
+        assert.equal(student.email, source.warehouse[0][index.headers.warehouse.indexOf('EMAIL ADDRESS')]);
+    }
     const exported = await execute({ operation: 'export', rows });
     assert.ok(exported.buffer.byteLength > 1000);
     console.log('PASS: production worker chunks load and execute sample creation, real audit analysis, and Excel export.');

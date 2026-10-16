@@ -2,12 +2,13 @@ const LIMIT = 3;
 let dbPromise;
 function db() {
     if (!dbPromise) dbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open('saacs-local-demo', 1);
+        const request = indexedDB.open('saacs-local-demo', 2);
         request.onupgradeneeded = () => {
-            request.result.createObjectStore('audits', { keyPath: 'audit_id' });
-            request.result.createObjectStore('history', { keyPath: 'audit_id' });
+            if (!request.result.objectStoreNames.contains('audits')) request.result.createObjectStore('audits', { keyPath: 'audit_id' });
+            if (!request.result.objectStoreNames.contains('history')) request.result.createObjectStore('history', { keyPath: 'audit_id' });
+            if (!request.result.objectStoreNames.contains('ruleEdits')) request.result.createObjectStore('ruleEdits', { keyPath: 'key' });
         };
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => { request.result.onversionchange = () => request.result.close(); resolve(request.result); };
         request.onerror = () => reject(new Error('Browser storage is unavailable. Allow site storage or try another browser.'));
     });
     return dbPromise;
@@ -43,6 +44,9 @@ export async function getAudits() {
     return (await transact('readonly', store => store.getAll(), 'history')).sort((a, b) => b.audit_id - a.audit_id);
 }
 export const getAudit = id => transact('readonly', store => store.get(Number(id)));
+export const getRuleEdits = async () => (await transact('readonly', store => store.get('checksheet'), 'ruleEdits'))?.snapshot;
+export const saveRuleEdits = snapshot => transact('readwrite', store => store.put({ key: 'checksheet', snapshot }), 'ruleEdits');
+export const clearRuleEdits = () => transact('readwrite', store => store.clear(), 'ruleEdits');
 export const clearAudits = async () => {
     await transact('readwrite', store => store.clear());
     await transact('readwrite', store => store.clear(), 'history');

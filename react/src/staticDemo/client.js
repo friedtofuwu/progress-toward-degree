@@ -1,25 +1,37 @@
 import axios from 'axios';
-import { getAudits, getAudit, saveAudit, clearAudits } from './storage';
+import { getAudits, getAudit, saveAudit, clearAudits, getRuleEdits, saveRuleEdits, clearRuleEdits } from './storage';
 import { runWorker as executeWorker } from './workerClient';
 const rules = require('./rules');
+const { editRules } = require('./ruleEdits');
 export const staticDemo = process.env.REACT_APP_STATIC_DEMO === 'true';
 export const localUser = { pid: 'local-demo', permissions: 1, campus: 2, demo: true, local: true };
 let job = { status: 'idle', message: null };
 let rulesPromise;
+let samplePromise;
+let ruleWrites = Promise.resolve();
 const rulesURL = () => new URL(`${process.env.PUBLIC_URL || ''}/data/checksheets.json`, window.location.href).href;
 function runWorker(data, transfer = []) {
-    return executeWorker({ ...data, rulesURL: rulesURL() }, transfer);
+    const sampleURL = new URL(`${process.env.PUBLIC_URL || ''}/data/demo-students/index.json`, window.location.href).href;
+    return executeWorker({ ...data, rulesURL: rulesURL(), sampleURL }, transfer);
 }
 async function loadRules() {
     if (!rulesPromise) rulesPromise = fetch(rulesURL()).then(response => {
         if (!response.ok) throw new Error('Unable to load course rules.');
         return response.json();
-    }).then(rows => rules.setRules(rows)).catch(error => { rulesPromise = null; throw error; });
+    }).then(async rows => {
+        const saved = await getRuleEdits();
+        rules.setRules(saved?.rows || rows, saved?.years || []);
+    }).catch(error => { rulesPromise = null; throw error; });
     await rulesPromise;
 }
 export async function sampleFile(kind) {
-    const { buffer } = await runWorker({ operation: 'sample', kind });
-    return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    if (!samplePromise) samplePromise = runWorker({ operation: 'sample' }).catch(error => { samplePromise = null; throw error; });
+    const pair = await samplePromise;
+    return new Blob([pair[kind]], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+export async function refreshSample() {
+    samplePromise = runWorker({ operation: 'sample' }).catch(error => { samplePromise = null; throw error; });
+    await samplePromise;
 }
 export async function downloadSample(kind) {
     const url = URL.createObjectURL(await sampleFile(kind));
@@ -33,6 +45,13 @@ export async function clearLocalAudits() {
     if (job.status === 'processing') throw new Error('Wait for the current audit to finish.');
     await clearAudits();
 }
+export async function resetLocalRules() {
+    await ruleWrites.catch(() => {});
+    await clearRuleEdits();
+    rulesPromise = null;
+    await loadRules();
+}
+export function reloadLocalRules() { rulesPromise = null; }
 function normalize(value) {
     return value && value !== 'ALL' ? value : null;
 }
@@ -49,7 +68,8 @@ async function importFiles(form) {
     (async () => {
         try {
             const [progress, warehouse] = await Promise.all(files.map(file => file.arrayBuffer()));
-            const { rows } = await runWorker({ operation: 'analyze', progress, warehouse, filters }, [progress, warehouse]);
+            await loadRules();
+            const { rows } = await runWorker({ operation: 'analyze', progress, warehouse, filters, ruleSnapshot: rules.snapshot() }, [progress, warehouse]);
             const meta = {
                 audit_id: started, initiating_user_pid: localUser.pid, timestamp: new Date(started).toISOString(),
                 filename: files[0].name, processing_time_ms: Date.now() - started, num_students: rows.length,
@@ -67,7 +87,19 @@ async function handle(path, method, data) {
     if (path === '/api/currentUser') return { user: localUser };
     if (path === '/api/audit/status') return { ...job };
     if (path === '/api/audit' && method === 'post') return importFiles(data);
-    if (method !== 'get') throw new Error('Course rules are read-only in the portfolio demo.');
+    if (path.startsWith('/api/checksheet/') && method !== 'get') {
+        const change = ruleWrites.catch(() => {}).then(async () => {
+            await loadRules();
+            const payload = typeof data === 'string' ? JSON.parse(data) : data;
+            const next = editRules(rules.snapshot(), path.replace(/\/$/, ''), method, payload);
+            await saveRuleEdits(next);
+            rules.setRules(next.rows, next.years);
+            return { message: 'Course rules saved in this browser.' };
+        });
+        ruleWrites = change;
+        return change;
+    }
+    if (method !== 'get') throw new Error('This action is unavailable in the browser demo.');
     const sample = path.match(/^\/api\/demo\/sample\/(progress|warehouse)$/);
     if (sample) return sampleFile(sample[1]);
     if (/^\/api\/audit\/history\//.test(path)) return { history: await getAudits() };
@@ -86,6 +118,7 @@ async function handle(path, method, data) {
         return audit.rows;
     }
     await loadRules();
+    await ruleWrites.catch(() => {});
     if (path === '/api/checksheet/get/numbers') return rules.getYears().map(year => ({ year }));
     const year = path.match(/^\/api\/checksheet\/get\/year\/(\d+)(?:\/([^/]+))?$/);
     if (year) {

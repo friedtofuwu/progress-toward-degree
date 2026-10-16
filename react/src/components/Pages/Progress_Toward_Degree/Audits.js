@@ -8,7 +8,7 @@ import FileInput from "../../HelperComponents/FileInput";
 import { IoEyeOutline, IoFilterOutline, IoHelpCircleOutline } from "react-icons/io5";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import { staticDemo, downloadSample, clearLocalAudits } from '../../../staticDemo/client';
+import { staticDemo, downloadSample, clearLocalAudits, refreshSample } from '../../../staticDemo/client';
 
 const fileTypes = ["XLSX"];
 
@@ -21,6 +21,7 @@ export default function Audits({ user }) {
     setSampleBusy(true);
     setSampleError('');
     try {
+      if (staticDemo) await refreshSample();
       const form = new FormData();
       for (const kind of ['progress', 'warehouse']) {
         const { data } = await axios.get(`/api/demo/sample/${kind}`, { responseType: 'blob' });
@@ -53,9 +54,9 @@ export default function Audits({ user }) {
       <div className="page-body">
         <h1>Audits</h1>
         {user?.demo && <div style={{ marginBottom: 20 }}>
-          <p>The quick sample contains three fictional students. To review all students in your own workbooks, upload both test files below (up to 20 MB each).</p>
+          <p>{staticDemo ? 'Each run randomly selects 10 students from the provided anonymous workbooks, preserving their original information and complete course histories.' : 'The quick sample contains three fictional students.'} To review all students in your own workbooks, upload both test files below (up to 20 MB each).</p>
           <button className="btn btn-primary" disabled={sampleBusy || ['queued', 'processing'].includes(job?.status)} onClick={runSample}>
-            {sampleBusy ? 'Starting sample…' : 'Run 3-student sample'}
+            {sampleBusy ? 'Starting sample…' : staticDemo ? 'Run random 10-student sample' : 'Run 3-student sample'}
           </button>
           <p style={{ marginTop: 10 }}>Sample files: <a href="/api/demo/sample/progress" onClick={staticDemo ? event => { event.preventDefault(); downloadSample('progress').catch(error => setSampleError(error.message)); } : undefined}>Progress Towards Degree</a> · <a href="/api/demo/sample/warehouse" onClick={staticDemo ? event => { event.preventDefault(); downloadSample('warehouse').catch(error => setSampleError(error.message)); } : undefined}>Data Warehouse</a></p>
           {staticDemo && <>

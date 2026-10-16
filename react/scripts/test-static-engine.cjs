@@ -8,6 +8,9 @@ const rules = require('../public/data/checksheets.json');
 const { DB } = require('../../node/database/handler');
 const original = require('../../node/parser/parser');
 const spreadsheet = require('../../node/parser/spreadsheet');
+const sampleIndex = require('../public/data/demo-students/index.json');
+const sampleRecords = require('../public/data/demo-students/pool-000.json').slice(0, 10);
+const selection = {records: sampleRecords, headers: sampleIndex.headers};
 (async () => {
     assert.ok(await DB.init(1), 'Local test database must be available');
     try {
@@ -32,7 +35,9 @@ const spreadsheet = require('../../node/parser/spreadsheet');
         const book = xlsx.read(engine.exportRows(actual), { type: 'array' });
         assert.equal(xlsx.utils.sheet_to_json(book.Sheets['Full Analysis']).length, 1619);
         assert.ok(xlsx.utils.sheet_to_json(book.Sheets['Full Analysis']).some(row => row.missing_courses.length > 0));
-        const filtered = await engine.analyze(engine.sample('progress'), engine.sample('warehouse'), rules, { advisor_lname: 'DoesNotExist' });
+        const selectedResult = await engine.analyze(engine.sample('progress', selection), engine.sample('warehouse', selection), rules);
+        for (const student of selectedResult) assert.deepEqual(student, actual.find(row => row.id === student.id));
+        const filtered = await engine.analyze(engine.sample('progress', selection), engine.sample('warehouse', selection), rules, { advisor_lname: 'DoesNotExist' });
         assert.equal(filtered.length, 0);
         await assert.rejects(engine.analyze(new Uint8Array([1, 2]), new Uint8Array([3, 4]), rules));
         console.log('PASS: browser and backend results match exactly for 1,619 students; export, sample, filters, and invalid input verified.');

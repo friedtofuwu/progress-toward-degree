@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { staticDemo } from '../../../staticDemo/client';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 //import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -338,6 +337,8 @@ function ClassList({year, category, title, classes}) {
               setOpenSnack(true)
 
           }
+          setClasses(newClasses);
+          setChecked([]);
       } catch (error) {
           // Handle errors, such as network errors or server errors
           console.error('Error deleting courses:', error);
@@ -345,8 +346,6 @@ function ClassList({year, category, title, classes}) {
           setSnackSeverity(`error`)
           setOpenSnack(true)
       }
-        setClasses(newClasses);
-        setChecked([]);
     }
 
     const handleSubmit = async (course) => {
@@ -363,7 +362,7 @@ function ClassList({year, category, title, classes}) {
           substitutes: course.substitutes
         }
         await axios.post('/api/checksheet/add', data)
-        const updatedCourses = [...courses, {...data, substitutes:JSON.stringify(data["substitutes"])}];
+        const updatedCourses = [...courses, {...data, substitutes:data.substitutes}];
         setClasses(updatedCourses);
 
         setSnackMessage(`Added New Course ${data.subject} ${data.course_number} For ${data.year}`)
@@ -450,12 +449,12 @@ function ClassList({year, category, title, classes}) {
         {openDropdown && (<>
         <div>
           <div className='icon-wrapper'>
-                {!staticDemo && <IconButton onClick={handleClickOpen} size="large" aria-label="add" className='icon-margin'>
+                <IconButton onClick={handleClickOpen} size="large" aria-label="add" className='icon-margin'>
                     <AddCircleOutlineOutlinedIcon/>
-                </IconButton>}
-                {!staticDemo && <IconButton onClick={handleDelete} size="large" aria-label="delete">
+                </IconButton>
+                <IconButton onClick={handleDelete} size="large" aria-label="delete">
                     <DeleteOutlineOutlinedIcon/>
-                </IconButton>}
+                </IconButton>
             </div>
         </div>
         <div>
@@ -464,17 +463,17 @@ function ClassList({year, category, title, classes}) {
             return (
                 <ListItem
                     disablePadding
-                    onClick={staticDemo ? undefined : handleToggle(value)}
+                    onClick={handleToggle(value)}
                     key={`${value.subject}-${value.course_number}-${category}`}
                 >
-                     {!staticDemo && <IconButton disableRipple className='checkbox-item'>
+                     <IconButton disableRipple className='checkbox-item'>
                         <Checkbox
                         edge="start"
                         checked={checked.indexOf(value) !== -1}
                         tabIndex={-1}
                         disableRipple
                         />
-                    </IconButton>}
+                    </IconButton>
                     <ListItemText 
                       primary={`${value.subject}${value.course_number} ${value.conc_eligible !== 'cs' ? `  (${value.conc_eligible} eligible)`: ''} [${value.passing_grade}]`}
                       secondary={(Array.isArray(value.substitutes) ? value.substitutes : []).map(sub => `${sub.subject}${sub.course_number}`).join(', ')}
