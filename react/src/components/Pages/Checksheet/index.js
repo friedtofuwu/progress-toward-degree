@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { staticDemo } from '../../../staticDemo/client';
 import "../../../css/Checksheet.scss";
 import AddIcon from '@mui/icons-material/Add';
 import ClassList from "./ClassList";
@@ -227,7 +228,8 @@ function Checksheet() {
                     {snackMessage}
                 </Alert>
             </Snackbar>
-            <h1>Checksheet Manager</h1>
+            <h1>{staticDemo ? 'Course Requirements' : 'Checksheet Manager'}</h1>
+            {staticDemo && <p>Read-only course rules used by the graduation audit.</p>}
             {loading ? (
                             <div>Loading Checksheet...</div>
                         ) : (
@@ -247,9 +249,9 @@ function Checksheet() {
                         </h2>
                     </div>
 
-                    <button onClick={handleClickOpen} className="new-list-button">
+                    {!staticDemo && <button onClick={handleClickOpen} className="new-list-button">
                         <div>Add New Year</div>
-                        <div><AddIcon/></div></button>
+                        <div><AddIcon/></div></button>}
 
                 </div>
                 <h2 className="group-header">General Requirements of all Majors</h2>

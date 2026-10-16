@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { staticDemo } from '../../../staticDemo/client';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 //import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -449,12 +450,12 @@ function ClassList({year, category, title, classes}) {
         {openDropdown && (<>
         <div>
           <div className='icon-wrapper'>
-                <IconButton onClick={handleClickOpen} size="large" aria-label="add" className='icon-margin'>
+                {!staticDemo && <IconButton onClick={handleClickOpen} size="large" aria-label="add" className='icon-margin'>
                     <AddCircleOutlineOutlinedIcon/>
-                </IconButton>
-                <IconButton onClick={handleDelete} size="large" aria-label="delete">
+                </IconButton>}
+                {!staticDemo && <IconButton onClick={handleDelete} size="large" aria-label="delete">
                     <DeleteOutlineOutlinedIcon/>
-                </IconButton>
+                </IconButton>}
             </div>
         </div>
         <div>
@@ -463,16 +464,16 @@ function ClassList({year, category, title, classes}) {
             return (
                 <ListItem
                     disablePadding
-                    onClick={handleToggle(value)}
+                    onClick={staticDemo ? undefined : handleToggle(value)}
                 >
-                     <IconButton disableRipple className='checkbox-item'>
+                     {!staticDemo && <IconButton disableRipple className='checkbox-item'>
                         <Checkbox
                         edge="start"
                         checked={checked.indexOf(value) !== -1}
                         tabIndex={-1}
                         disableRipple
                         />
-                    </IconButton>
+                    </IconButton>}
                     <ListItemText 
                       primary={`${value.subject}${value.course_number} ${value.conc_eligible !== 'cs' ? `  (${value.conc_eligible} eligible)`: ''} [${value.passing_grade}]`}
                       secondary={(Array.isArray(value.substitutes) ? value.substitutes : []).map(sub => `${sub.subject}${sub.course_number}`).join(', ')}

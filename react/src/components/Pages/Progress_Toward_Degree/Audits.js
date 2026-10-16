@@ -8,6 +8,7 @@ import FileInput from "../../HelperComponents/FileInput";
 import { IoEyeOutline, IoFilterOutline, IoHelpCircleOutline } from "react-icons/io5";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { staticDemo, downloadSample, clearLocalAudits } from '../../../staticDemo/client';
 
 const fileTypes = ["XLSX"];
 
@@ -56,7 +57,13 @@ export default function Audits({ user }) {
           <button className="btn btn-primary" disabled={sampleBusy || ['queued', 'processing'].includes(job?.status)} onClick={runSample}>
             {sampleBusy ? 'Starting sample…' : 'Run sample audit'}
           </button>
-          <p style={{ marginTop: 10 }}>Sample files: <a href="/api/demo/sample/progress">Progress Towards Degree</a> · <a href="/api/demo/sample/warehouse">Data Warehouse</a></p>
+          <p style={{ marginTop: 10 }}>Sample files: <a href="/api/demo/sample/progress" onClick={staticDemo ? event => { event.preventDefault(); downloadSample('progress').catch(error => setSampleError(error.message)); } : undefined}>Progress Towards Degree</a> · <a href="/api/demo/sample/warehouse" onClick={staticDemo ? event => { event.preventDefault(); downloadSample('warehouse').catch(error => setSampleError(error.message)); } : undefined}>Data Warehouse</a></p>
+          {staticDemo && <>
+            <p>Your files stay on this device. Large files may take longer on phones or older computers. Only the latest three audits are retained.</p>
+            <button className="btn btn-outline-secondary" disabled={sampleBusy || job?.status === 'processing'} onClick={async () => {
+              try { await clearLocalAudits(); triggerRefetch(); } catch (error) { setSampleError(error.message); }
+            }}>Clear saved demo results</button>
+          </>}
         </div>}
         {sampleError && <Alert severity="error">{sampleError}</Alert>}
         {job?.status === 'failed' && <Alert severity="error">{job.message}</Alert>}

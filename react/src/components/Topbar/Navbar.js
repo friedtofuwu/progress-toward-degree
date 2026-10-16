@@ -16,7 +16,7 @@ export default function Navbar({ user }) {
   const [faDropdown, setFADropdown] = useState(false);
   const [auditDropdown, setAuditDropdown] = useState(false);
 
-  const mobileDisplayedItem = MenuItems[user ? 1 : 0];
+  const mobileDisplayedItem = user?.local ? { path: '/', title: 'Demo Home' } : MenuItems[user ? 1 : 0];
 
   const handleClickOutside = (e) => {
     //if (dropdown && dropdownRef.current && !dropdownRef.current.contains(e.target)) {

@@ -37,12 +37,14 @@ import LoginReroute from "./components/Pages/LoginReroute";
 import Audits from "./components/Pages/Progress_Toward_Degree/Audits";
 import StudentsList from "./components/Pages/Progress_Toward_Degree/StudentsList";
 import StudentProgressPage from "./components/Pages/Progress_Toward_Degree/StudentProgressPage";
+import { staticDemo, localUser } from './staticDemo/client';
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(staticDemo ? localUser : null);
+  const [loading, setLoading] = useState(!staticDemo);
 
   useEffect(() => {
+    if (staticDemo) return;
     async function getCurrentUser() {
       await fetch("/api/currentUser")
         .then(async (res) => {
@@ -71,7 +73,7 @@ export default function App() {
         {user?.demo && (
           <aside style={{ background: '#fff3cd', color: '#493a0a', padding: '12px 20px', textAlign: 'center' }}>
             Portfolio demo · You are trying the advisor workflow. Use fictional test data only.
-            {' '}Audit results belong to this browser session. <a href="/audits">Start an audit</a>
+            {' '}{staticDemo ? 'Files are processed on your device. The latest three audits stay in this browser.' : 'Audit results belong to this browser session.'} <a href="/audits">Start an audit</a>
           </aside>
         )}
         <div className="page-contents">

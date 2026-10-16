@@ -6475,8 +6475,6 @@ INSERT IGNORE INTO `Checksheet` (`year`, `subject`, `category`, `course_number`,
     (2025, 'UH', '6a', '2824', 3, 'D-', 1, 'cs', '[]');
 -- Copy Pathways categories from 2025 into earlier years (2007–2024)
 
-DELIMITER ;;
-
 INSERT IGNORE INTO `Checksheet`
     (`year`,
      `subject`,
@@ -6718,6 +6716,8 @@ JOIN (
 
 -- Add the stuff for the User id default b/c MariaDB does not have UUID_TO_BIN and doesn't support stored functions as default
 
+
+DELIMITER ;;
 
 DROP PROCEDURE IF EXISTS `GradFAWaitlist`;;
 CREATE PROCEDURE `GradFAWaitlist` ()
@@ -6976,6 +6976,7 @@ BEGIN
     TRUNCATE TABLE NewTimetable;
 END;;
 
+DROP TRIGGER IF EXISTS `AddNewTerms_bi`;;
 CREATE TRIGGER `AddNewTerms_bi` BEFORE INSERT ON `NewTimetable` FOR EACH ROW
 BEGIN
     INSERT IGNORE INTO Term
