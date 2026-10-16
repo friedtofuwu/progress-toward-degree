@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { staticDemo } from '../../../staticDemo/client';
+import { availableYears, selectAvailableYear } from './availableYears';
 import "../../../css/Checksheet.scss";
 import AddIcon from '@mui/icons-material/Add';
 import ClassList from "./ClassList";
@@ -71,18 +72,23 @@ function Checksheet() {
 
 
     useEffect(() => {
+        let active = true;
         const fetchData = async () => {
             try {
                 setLoading(true)
                 const yearList = await axios.get(`/api/checksheet/get/numbers`)
-                const years = yearList.data
-                if (years.length > 0 && years.find(year => year.year == selectedYear)){
-                        const latestYear = selectedYear
+                const years = availableYears(yearList.data);
+                const latestYear = selectAvailableYear(years, selectedYear);
+                if (!active) return;
+                setYears(years);
+                setShownYears(years);
+                if (latestYear){
 
                         const courses = await axios.get(`/api/checksheet/get/year/${latestYear}`);
                         const courseData = courses.data;
+                        if (!active) return;
 
-                        const updatedLists = currClassList.lists.map(list => {
+                        setCurrClassList(previous => ({year:latestYear, lists: previous.lists.map(list => {
                             // Find the courses for the current list category
                             const categoryCourses = courseData[list.name] || [];
         
@@ -91,33 +97,31 @@ function Checksheet() {
                                 ...list,
                                 classes: categoryCourses
                             };
-                        });
+                        })}));
         
                         // Update currClassList with the updated lists
-                        setCurrClassList({year:latestYear, lists: updatedLists});
                         setSelectedYear(latestYear)
         
-                        // Update state with the fetched years
-                        setYears(years);
-                        setShownYears(years)
                 }
                 else{
-                    setShownYears([...years, {year: selectedYear}])
+                    setCurrClassList(previous => ({...previous, lists: previous.lists.map(list => ({...list, classes: []}))}));
                 }
 
             }
             catch (error) {
+                if (!active) return;
                 console.error('Error fetching initial data:', error);
                 setSnackMessage('Error fetching initial data')
                 setSnackSeverity('error')
                 setOpenSnack(true)
             }
             finally{
-                setLoading(false)
+                if (active) setLoading(false)
             }
         }
 
         fetchData()
+        return () => { active = false; };
     }, [selectedYear])
 
     const handleYearInputChange = (event) => {
@@ -242,7 +246,7 @@ function Checksheet() {
                             <Select style={{ marginLeft: '.5rem' }} value={selectedYear} onChange={handleSelectYear}>
                                 {shownYears.map((value) => {
                                     return (
-                                        <MenuItem value={value.year}>{value.year}</MenuItem>
+                                        <MenuItem key={value.year} value={value.year}>{value.year}</MenuItem>
                                     );
                                 })}
                             </Select>
@@ -349,7 +353,7 @@ function Checksheet() {
                                 <MenuItem value="None">None</MenuItem>
                             {years.map((value) => {
                                 return (
-                                    <MenuItem value={value.year}>{value.year}</MenuItem>
+                                    <MenuItem key={value.year} value={value.year}>{value.year}</MenuItem>
                                 );
                             })}
                         </Select>

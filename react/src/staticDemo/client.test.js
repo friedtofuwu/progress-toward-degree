@@ -29,7 +29,14 @@ test('real sample audit, browser persistence, history, export, read-only rules a
     expect(history).toHaveLength(1);
     expect(history[0].rows).toBeUndefined();
     expect(history[0].num_students).toBe(3);
-    expect((await request(`/api/audit/${history[0].audit_id}`)).data).toHaveLength(3);
+    const students = (await request(`/api/audit/${history[0].audit_id}`)).data;
+    expect(students).toHaveLength(3);
+    for (const student of students) {
+        expect(student.email).toBe(`student${student.id}@example.invalid`);
+        expect(student.graduation_ready).toBe(false);
+        expect(student.missing_courses.length).toBeGreaterThan(0);
+        expect(student.citizen_code).toBe('US');
+    }
     const exported = (await request(`/api/audit-file/${history[0].audit_id}`)).data;
     expect(exported.size).toBeGreaterThan(1000);
     await expect(request('/api/checksheet/delete/', 'delete')).rejects.toThrow('read-only');
@@ -47,4 +54,9 @@ test('invalid files surface an error without a network request', async () => {
     const form = { getAll: () => [{ name: 'wrong.csv', size: 100 }] };
     await expect(request('/api/audit', 'post', form)).rejects.toThrow('two XLSX');
     expect(runWorker).not.toHaveBeenCalled();
+});
+test('old incomplete saved results require a rerun instead of displaying empty missing classes', async () => {
+    await saveAudit({ audit_id: 1, filename: 'old-demo.xlsx', rows: [{id: 900000001}] });
+    await expect(request('/api/audit/1')).rejects.toThrow('older demo');
+    await expect(request('/api/audit-file/1')).rejects.toThrow('older demo');
 });

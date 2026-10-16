@@ -31,6 +31,9 @@ async function execute(data) {
     const { rows } = await execute({ operation: 'analyze', progress, warehouse, rulesURL: 'https://example.invalid/data/checksheets.json' });
     assert.equal(rows.length, 3);
     assert.equal(rows[0].id, 900000001);
+    assert.equal(rows[0].email, 'student900000001@example.invalid');
+    assert.equal(rows[0].graduation_ready, false);
+    assert.ok(rows.every(row => row.missing_courses.length > 0));
     const exported = await execute({ operation: 'export', rows });
     assert.ok(exported.buffer.byteLength > 1000);
     console.log('PASS: production worker chunks load and execute sample creation, real audit analysis, and Excel export.');

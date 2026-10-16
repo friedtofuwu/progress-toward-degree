@@ -75,6 +75,9 @@ async function handle(path, method, data) {
     if (auditMatch) {
         const audit = await getAudit(auditMatch[2]);
         if (!audit) throw new Error('This audit is no longer stored in this browser.');
+        if (audit.rows.some(row => !Array.isArray(row.missing_courses) || typeof row.graduation_ready !== 'boolean')) {
+            throw new Error('These saved results were created by an older demo. Return to Audits, clear saved demo results, and rerun your files.');
+        }
         if (auditMatch[1] === 'audit-file') {
             const { buffer } = await runWorker({ operation: 'export', rows: audit.rows });
             return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

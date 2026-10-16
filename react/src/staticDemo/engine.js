@@ -15,10 +15,12 @@ async function analyze(progress, warehouse, rules, filters = {}) {
         throw new Error('No student records found. Check that the two Excel files use the expected headers.');
     }
     const result = await analyzeStudents(students, extra, filters);
-    const additional = new Map(result.additional.map(row => [Number(row.student_id), row]));
+    const additional = new Map(result.additional.map(row => [Number(row.id), row]));
     return result.students.map(student => {
-        const { student_id, ...details } = additional.get(Number(student.id)) || {};
-        return { ...student, ...details };
+        const details = additional.get(Number(student.id));
+        if (!details) throw new Error(`Audit details are missing for student ${student.id}. Please rerun the audit.`);
+        const { id, email_address, ...fields } = details;
+        return { ...student, ...fields, email: email_address };
     });
 }
 function exportRows(students) {

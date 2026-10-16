@@ -17,6 +17,7 @@ export default function StudentsList() {
   const [currentPage, setCurrentPage] = useState(0);
   const [studentsPerPage, setStudentsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [allStudents, setAllStudents] = useState([]);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [showMissingClassesDropdown, setShowMissingClassesDropdown] =
@@ -206,12 +207,14 @@ export default function StudentsList() {
     const fetchAuditData = async () => {
       try {
         setLoading(true);
+        setLoadError('');
         const response = await axios.get(`/api/audit/${audit_id}`);
 
         if (response.data) {
           setAllStudents(response.data);
         }
       } catch (error) {
+        setLoadError(error.response?.data?.message || 'Unable to load this audit. Please return to Audits and try again.');
         console.error("Error fetching audit data:", error);
       } finally {
         setLoading(false);
@@ -1041,6 +1044,9 @@ export default function StudentsList() {
   );
   const totalPages = Math.ceil(students.length / studentsPerPage);
 
+  if (loadError) {
+    return <div className="page-body"><p role="alert">{loadError}</p><Link to="/audits">Back to Audits</Link></div>;
+  }
   if (loading) {
     return (
       <div className="page-body">
@@ -1055,6 +1061,7 @@ export default function StudentsList() {
         <IoArrowBack /> Back to Audits
       </Link>
 
+      <p>Students in this audit: {allStudents.length}. Matching current filters: {students.length}. Showing {currentStudents.length} on this page.</p>
       <div className="header-with-controls">
         <h1>Audit {audit_id} - Student Progress</h1>
 

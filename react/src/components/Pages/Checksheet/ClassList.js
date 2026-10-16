@@ -465,6 +465,7 @@ function ClassList({year, category, title, classes}) {
                 <ListItem
                     disablePadding
                     onClick={staticDemo ? undefined : handleToggle(value)}
+                    key={`${value.subject}-${value.course_number}-${category}`}
                 >
                      {!staticDemo && <IconButton disableRipple className='checkbox-item'>
                         <Checkbox
